@@ -108,15 +108,6 @@ export function SiteFooter() {
             </ul>
           </div>
         </div>
-
-        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {site.established}–present {site.name}. All rights reserved.
-          </p>
-          <p>
-            Est. {site.established} · {site.stats.staff} Staff · {site.stats.partners} Partners
-          </p>
-        </div>
       </Container>
     </footer>
   );

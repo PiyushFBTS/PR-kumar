@@ -79,7 +79,7 @@ export default function LeadershipPage() {
         <h2 className="mb-6 text-xl font-semibold text-brand">The partners</h2>
 
         {/* The rest of the team — uniform brand accent */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
           {others.map((partner) => (
             <Link
               key={partner.slug}
