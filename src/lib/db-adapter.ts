@@ -15,5 +15,12 @@ export function makeMariaAdapter(databaseUrl: string): PrismaMariaDb {
     database: url.pathname.replace(/^\//, "") || undefined,
     // `true` enables TLS with the system CA store + SNI (works with TiDB Cloud).
     ssl: isLocal ? undefined : true,
+    // The driver default connectTimeout is only 1s — too short to open a TLS
+    // socket to a managed DB from a distant serverless region (Vercel). Raise it.
+    connectTimeout: isLocal ? undefined : 30_000,
+    acquireTimeout: isLocal ? undefined : 30_000,
+    // Keep the per-instance pool small on serverless to avoid exhausting the
+    // managed DB's connection limit across many concurrent lambdas.
+    connectionLimit: isLocal ? undefined : 5,
   });
 }
