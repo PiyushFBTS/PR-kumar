@@ -7,6 +7,18 @@ export function makeMariaAdapter(databaseUrl: string): PrismaMariaDb {
   const url = new URL(databaseUrl);
   const isLocal = url.hostname === "localhost" || url.hostname === "127.0.0.1";
 
+  // Diagnostic (no password) — shows up in Vercel function logs so we can
+  // confirm which host/db the deployed app is actually using.
+  console.info("[db] adapter target", {
+    host: url.hostname,
+    port: url.port || "3306",
+    database: url.pathname.replace(/^\//, "") || "(none)",
+    user: decodeURIComponent(url.username),
+    ssl: !isLocal,
+    nodeEnv: process.env.NODE_ENV,
+    hasDbUrl: Boolean(process.env.DATABASE_URL),
+  });
+
   return new PrismaMariaDb({
     host: url.hostname,
     port: url.port ? Number(url.port) : 3306,
