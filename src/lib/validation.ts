@@ -51,6 +51,7 @@ export const quoteSchema = z.object({
 export const resourceSchema = z.object({
   label: z.string().trim().min(1, "Label is required").max(120),
   url: z.url("Enter a valid URL").max(500),
+  logo: z.string().trim().max(500).nullable().optional(),
   category: z.string().trim().max(80).nullable().optional(),
   order: z.number().int().min(0).optional().default(0),
 });

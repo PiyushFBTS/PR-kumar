@@ -25,6 +25,7 @@ export default function QuotesPage() {
   return (
     <>
       <Hero
+        image="/thought-leadership/leadership.jpg"
         eyebrow="Thought Leadership"
         title="In our partners' words"
         subtitle="Perspectives on tax, assurance and advisory from the people who lead the work."
@@ -47,7 +48,7 @@ export default function QuotesPage() {
               </span>
             </blockquote>
             <figcaption className="mt-6 text-sm font-semibold text-white/80">
-              — {mentor.partner}
+              — CA {mentor.partner}
             </figcaption>
           </figure>
         ) : null}
@@ -69,7 +70,7 @@ export default function QuotesPage() {
                 </span>
                 <blockquote className="mt-2 flex-1 text-foreground">{q.quote}</blockquote>
                 <figcaption className="mt-4">
-                  <p className="font-semibold text-brand">{q.partner}</p>
+                  <p className="font-semibold text-brand">CA {q.partner}</p>
                   <p className="text-xs text-muted">{q.role}</p>
                 </figcaption>
               </figure>

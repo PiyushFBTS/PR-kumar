@@ -1,20 +1,15 @@
-import { writeFile, mkdir } from "node:fs/promises";
-import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
 import { apiError, json, getClientIp } from "@/lib/api";
 import { rateLimit } from "@/lib/rate-limit";
 import { env } from "@/lib/env";
 
-export const runtime = "nodejs"; // needs the Node fs APIs
+export const runtime = "nodejs";
 
-const ALLOWED = new Map([
-  ["image/jpeg", "jpg"],
-  ["image/png", "png"],
-  ["image/webp", "webp"],
-  ["image/gif", "gif"],
-]);
+const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
+// Stores the uploaded image in the database (Media table) and returns a URL
+// that serves it from there — so uploads persist on serverless hosts (Vercel).
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return apiError("Not authenticated", 401);
@@ -27,16 +22,17 @@ export async function POST(req: Request) {
   const file = form?.get("file");
   if (!(file instanceof File)) return apiError("No file provided", 400);
 
-  const ext = ALLOWED.get(file.type);
-  if (!ext) return apiError("Unsupported image type (use JPG, PNG, WebP or GIF).", 415);
-
+  if (!ALLOWED.has(file.type)) {
+    return apiError("Unsupported image type (use JPG, PNG, WebP or GIF).", 415);
+  }
   const maxBytes = env.upload.maxMb * 1024 * 1024;
   if (file.size > maxBytes) return apiError(`Image exceeds ${env.upload.maxMb}MB limit.`, 413);
 
-  const name = `${randomUUID()}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
+  const data = Buffer.from(await file.arrayBuffer());
+  const media = await prisma.media.create({
+    data: { mimeType: file.type, data },
+    select: { id: true },
+  });
 
-  return json({ url: `/uploads/${name}` }, 201);
+  return json({ url: `/api/media/${media.id}` }, 201);
 }

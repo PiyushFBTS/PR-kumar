@@ -16,6 +16,14 @@ function getArea(slug: string) {
   return practiceAreas.find((area) => area.slug === slug);
 }
 
+// Per-area hero cover images (public/cover/area/*). Extensions vary.
+const areaCover: Record<string, string> = {
+  "assurance-advisory": "/cover/area/assurance-advisory.jpg",
+  "tax-advisory": "/cover/area/tax-advisory.png",
+  "business-advisory": "/cover/area/business-advisory.jpg",
+  "management-advisory": "/cover/area/management-advisory.jpeg",
+};
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
   const area = getArea(slug);
@@ -30,7 +38,12 @@ export default async function PracticeAreaPage({ params }: { params: Promise<Par
 
   return (
     <>
-      <Hero eyebrow="Practice area" title={area.name} subtitle={area.summary} />
+      <Hero
+        image={areaCover[area.slug]}
+        eyebrow="Practice area"
+        title={area.name}
+        subtitle={area.summary}
+      />
 
       <Section>
         <div className="grid gap-10 lg:grid-cols-3">

@@ -74,6 +74,7 @@ model Resource {
   id        Int      @id @default(autoincrement())
   label     String // e.g. "MCA"
   url       String   @db.Text
+  logo      String? // uploaded logo path (e.g. /uploads/xxx.png)
   category  String? // Regulatory, Tax, etc.
   order     Int      @default(0)
   createdAt DateTime @default(now())
@@ -110,6 +111,15 @@ model Enquiry {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Uploaded images stored in the DB (so they persist on serverless hosts like
+// Vercel). Served via GET /api/media/[id].
+model Media {
+  id        String   @id @default(cuid())
+  mimeType  String
+  data      Bytes // LONGBLOB
+  createdAt DateTime @default(now())
 }
 
 model JobApplication {

@@ -1,118 +1,314 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 export interface ManagedResource {
   id: number;
   label: string;
   url: string;
+  logo: string | null;
   category: string | null;
   order: number;
 }
 
+const emptyForm = { label: "", url: "", category: "", logo: "" };
+const inputClass =
+  "mt-1 w-full rounded border border-border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent";
+
 export function ResourceManager({ resources }: { resources: ManagedResource[] }) {
   const router = useRouter();
-  const [form, setForm] = useState({ label: "", url: "", category: "" });
+  const [formOpen, setFormOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState<ManagedResource | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
-  async function add(e: React.FormEvent) {
+  function openAdd() {
+    setForm(emptyForm);
+    setEditId(null);
+    setError(null);
+    setFormOpen(true);
+  }
+
+  function openEdit(r: ManagedResource) {
+    setForm({ label: r.label, url: r.url, category: r.category ?? "", logo: r.logo ?? "" });
+    setEditId(r.id);
+    setError(null);
+    setFormOpen(true);
+  }
+
+  async function onPickLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Logo upload failed.");
+        return;
+      }
+      setForm((f) => ({ ...f, logo: data.url }));
+    } catch {
+      setError("Logo upload failed.");
+    } finally {
+      setUploading(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  }
+
+  async function save(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const res = await fetch("/api/admin/resources", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        label: form.label,
-        url: form.url,
-        category: form.category || null,
-      }),
-    });
+    const payload = {
+      label: form.label,
+      url: form.url,
+      category: form.category || null,
+      logo: form.logo || null,
+    };
+    const res = await fetch(
+      editId ? `/api/admin/resources/${editId}` : "/api/admin/resources",
+      {
+        method: editId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
     setBusy(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Could not add resource.");
+      setError(data.error ?? "Could not save resource.");
       return;
     }
-    setForm({ label: "", url: "", category: "" });
+    setFormOpen(false);
     router.refresh();
   }
 
-  async function remove(id: number) {
-    if (!window.confirm("Delete this resource?")) return;
-    await fetch(`/api/admin/resources/${id}`, { method: "DELETE" });
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setBusy(true);
+    await fetch(`/api/admin/resources/${deleteTarget.id}`, { method: "DELETE" });
+    setBusy(false);
+    setDeleteTarget(null);
     router.refresh();
   }
 
   return (
     <>
-      {error ? (
-        <p
-          role="alert"
-          className="mt-4 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700"
-        >
-          {error}
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-sm text-muted">
+          {resources.length} resource{resources.length === 1 ? "" : "s"}
         </p>
-      ) : null}
+        <Button size="sm" onClick={openAdd}>
+          + Add resource
+        </Button>
+      </div>
 
-      <form
-        onSubmit={add}
-        className="mt-6 grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-3"
+      {/* List */}
+      {resources.length === 0 ? (
+        <p className="mt-4 rounded-lg border border-border bg-surface p-8 text-center text-sm text-muted">
+          No resources yet. Click “Add resource” to create one.
+        </p>
+      ) : (
+        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border">
+          {resources.map((r) => (
+            <li
+              key={r.id}
+              className="flex flex-wrap items-center gap-4 p-4 transition-colors hover:bg-surface"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded border border-border bg-background">
+                {r.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={r.logo} alt="" className="max-h-full max-w-full object-contain" />
+                ) : (
+                  <span className="text-[9px] text-muted">—</span>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium text-brand">{r.label}</p>
+                  {r.category ? (
+                    <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                      {r.category}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted">{r.url}</p>
+              </div>
+
+              <div className="flex items-center gap-4 text-sm">
+                <button
+                  type="button"
+                  onClick={() => openEdit(r)}
+                  className="font-medium text-brand hover:underline"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(r)}
+                  className="font-medium text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Add / Edit modal */}
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={editId ? "Edit resource" : "Add resource"}
       >
-        <input
-          required
-          placeholder="Label (e.g. MCA)"
-          value={form.label}
-          onChange={(e) => setForm({ ...form, label: e.target.value })}
-          className="rounded border border-border px-3 py-2 text-sm"
-        />
-        <input
-          required
-          type="url"
-          placeholder="https://…"
-          value={form.url}
-          onChange={(e) => setForm({ ...form, url: e.target.value })}
-          className="rounded border border-border px-3 py-2 text-sm"
-        />
-        <input
-          placeholder="Category (optional)"
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="rounded border border-border px-3 py-2 text-sm"
-        />
-        <div className="sm:col-span-3">
-          <Button type="submit" size="sm" disabled={busy}>
-            {busy ? "Adding…" : "Add resource"}
+        <form onSubmit={save} className="space-y-4">
+          {error ? (
+            <p
+              role="alert"
+              className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700"
+            >
+              {error}
+            </p>
+          ) : null}
+
+          <div>
+            <label htmlFor="res-label" className="block text-sm font-medium text-brand">
+              Label
+            </label>
+            <input
+              id="res-label"
+              required
+              placeholder="e.g. MCA"
+              value={form.label}
+              onChange={(e) => setForm({ ...form, label: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="res-url" className="block text-sm font-medium text-brand">
+              URL
+            </label>
+            <input
+              id="res-url"
+              required
+              type="url"
+              placeholder="https://…"
+              value={form.url}
+              onChange={(e) => setForm({ ...form, url: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="res-category" className="block text-sm font-medium text-brand">
+              Category <span className="text-muted">(optional)</span>
+            </label>
+            <input
+              id="res-category"
+              placeholder="e.g. Regulatory"
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-brand">Logo</span>
+
+            {/* Preview of the added image */}
+            <div className="mt-1 flex h-40 items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-surface p-3">
+              {uploading ? (
+                <span className="text-sm text-muted">Uploading…</span>
+              ) : form.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={form.logo}
+                  alt="Logo preview"
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : (
+                <span className="text-sm text-muted">No logo selected</span>
+              )}
+            </div>
+
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={onPickLogo}
+              className="hidden"
+            />
+            <div className="mt-2 flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => logoInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Uploading…" : form.logo ? "Change image" : "Upload image"}
+              </Button>
+              {form.logo ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setForm({ ...form, logo: "" })}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button type="submit" disabled={busy || uploading}>
+              {busy ? "Saving…" : editId ? "Save changes" : "Add resource"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setFormOpen(false)}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete confirmation modal */}
+      <Modal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete resource"
+      >
+        <p className="text-sm text-foreground">
+          Delete <strong>{deleteTarget?.label}</strong>? This cannot be undone.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={confirmDelete}
+            disabled={busy}
+            className="inline-flex h-11 items-center justify-center rounded bg-red-600 px-5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {busy ? "Deleting…" : "Delete"}
+          </button>
+          <Button type="button" variant="ghost" onClick={() => setDeleteTarget(null)}>
+            Cancel
           </Button>
         </div>
-      </form>
-
-      <ul className="mt-6 divide-y divide-border rounded-lg border border-border">
-        {resources.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-            <div className="min-w-0">
-              <p className="font-medium text-brand">{r.label}</p>
-              <p className="truncate text-xs text-muted">
-                {r.category ? `${r.category} · ` : ""}
-                {r.url}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => remove(r.id)}
-              className="text-sm text-red-600 hover:underline"
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-        {resources.length === 0 ? (
-          <li className="p-4 text-sm text-muted">No resources yet.</li>
-        ) : null}
-      </ul>
+      </Modal>
     </>
   );
 }

@@ -24,7 +24,11 @@ export async function POST(req: Request) {
   }
 
   const resource = await prisma.resource.create({
-    data: { ...parsed.data, category: parsed.data.category ?? null },
+    data: {
+      ...parsed.data,
+      category: parsed.data.category ?? null,
+      logo: parsed.data.logo ?? null,
+    },
   });
   return json({ resource }, 201);
 }

@@ -10,10 +10,25 @@ export const metadata: Metadata = {
   description: "Key regulatory and government links curated by P. R. Kumar & Co.",
 };
 
+// Logos in public/resource/, matched by normalised label.
+const LOGOS: Record<string, string> = {
+  mca: "/resource/mca.png",
+  cbdt: "/resource/cbdt.jpg",
+  gst: "/resource/gst.jpg",
+  gstportal: "/resource/gst.jpg",
+  sebi: "/resource/sebi.jpg",
+  rbi: "/resource/rbi.png",
+  icai: "/resource/icai.jpg",
+};
+
+function logoFor(label: string): string | null {
+  return LOGOS[label.toLowerCase().replace(/[^a-z0-9]/g, "")] ?? null;
+}
+
 export default async function ResourcesPage() {
   const resources = await prisma.resource.findMany({
     orderBy: [{ order: "asc" }, { id: "asc" }],
-    select: { id: true, label: true, url: true, category: true },
+    select: { id: true, label: true, url: true, logo: true, category: true },
   });
 
   // Group by category for display.
@@ -27,6 +42,7 @@ export default async function ResourcesPage() {
   return (
     <>
       <Hero
+        image="/thought-leadership/resources.jpg"
         eyebrow="Thought Leadership"
         title="Useful resources"
         subtitle="Quick links to the regulatory and government portals we work with most."
@@ -44,22 +60,45 @@ export default async function ResourcesPage() {
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
                   {category}
                 </h2>
-                <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {items.map((r) => (
-                    <li key={r.id}>
-                      <a
-                        href={r.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-between rounded-lg border border-border bg-background p-4 text-brand transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
-                      >
-                        <span className="font-medium">{r.label}</span>
-                        <span aria-hidden className="text-brand-accent">
-                          ↗
-                        </span>
-                      </a>
-                    </li>
-                  ))}
+                <ul className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((r) => {
+                    const logo = r.logo ?? logoFor(r.label);
+                    return (
+                      <li key={r.id}>
+                        <a
+                          href={r.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex h-full flex-col items-center rounded-2xl border border-border bg-background p-8 text-center transition-all hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+                        >
+                          {/* Logo in a uniform tinted frame */}
+                          <div className="flex h-28 w-full items-center justify-center rounded-xl bg-surface p-4">
+                            {logo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={logo}
+                                alt=""
+                                aria-hidden
+                                className="max-h-20 w-auto object-contain"
+                              />
+                            ) : (
+                              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-background text-sm font-semibold text-muted">
+                                {r.label.slice(0, 3).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="mt-6 text-lg font-semibold text-brand">{r.label}</h3>
+                          <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-accent">
+                            Visit site
+                            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                              →
+                            </span>
+                          </span>
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
