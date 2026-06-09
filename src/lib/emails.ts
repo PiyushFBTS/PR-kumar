@@ -6,12 +6,7 @@ const site = env.siteUrl;
 
 // All helpers are best-effort: email failures are logged but never throw,
 // so a transient SMTP problem can't break the request flow.
-async function safeSend(
-  to: string,
-  subject: string,
-  html: string,
-  attachments?: MailAttachment[],
-) {
+async function safeSend(to: string, subject: string, html: string, attachments?: MailAttachment[]) {
   try {
     await sendMail({ to, subject, html, attachments });
   } catch (err) {
@@ -70,6 +65,7 @@ export async function notifyAuthorRejected(opts: {
 export async function notifyFirmOfEnquiry(opts: {
   name: string;
   email: string;
+  phone: string;
   service: string;
   message: string;
 }) {
@@ -79,6 +75,7 @@ export async function notifyFirmOfEnquiry(opts: {
     `<p>A new enquiry has been submitted via the website.</p>
      <p><strong>Name:</strong> ${opts.name}<br/>
         <strong>Email:</strong> ${opts.email}<br/>
+        <strong>Contact number:</strong> ${opts.phone}<br/>
         <strong>Service:</strong> ${opts.service}</p>
      <p><strong>Message:</strong><br/>${opts.message}</p>`,
   );

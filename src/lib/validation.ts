@@ -37,8 +37,24 @@ export const adminUserCreateSchema = z.object({
 });
 
 export const adminUserUpdateSchema = z.object({
+  name: z.string().trim().min(2, "Name is too short").max(80).optional(),
+  email: z.email("Enter a valid email").max(160).optional(),
   active: z.boolean().optional(),
   role: z.enum(["USER", "ADMIN"]).optional(),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100).optional(),
+});
+
+// --- Account (self-service) ---
+export const profileUpdateSchema = z.object({
+  name: z.string().trim().min(2, "Name is too short").max(80),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Enter your current password"),
+  newPassword: z
+    .string()
+    .min(8, "New password must be at least 8 characters")
+    .max(100, "Password is too long"),
 });
 
 export const quoteSchema = z.object({
@@ -60,6 +76,7 @@ export const resourceSchema = z.object({
 export const enquirySchema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(80),
   email: z.email("Enter a valid email").max(160),
+  phone: z.string().trim().min(6, "Enter a valid contact number").max(20),
   service: z.string().trim().min(1, "Select a service").max(120),
   message: z.string().trim().min(5, "Message is too short").max(5000),
 });

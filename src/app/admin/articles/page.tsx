@@ -4,7 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { Section } from "@/components/ui/section";
 import { StatusBadge } from "@/components/article-editor";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
+import { Pagination } from "@/components/ui/pagination";
+import { getPageParam, paginate } from "@/lib/pagination";
 import { cn } from "@/lib/cn";
+
+const PAGE_SIZE = 10;
 
 export const metadata = { title: "All Articles" } satisfies Metadata;
 
@@ -14,16 +18,23 @@ type Filter = (typeof FILTERS)[number];
 export default async function AdminArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const statusParam = (await searchParams).status?.toUpperCase();
+  const sp = await searchParams;
+  const statusParam = sp.status?.toUpperCase();
   const active: Filter = (FILTERS as readonly string[]).includes(statusParam ?? "")
     ? (statusParam as Filter)
     : "ALL";
 
+  const where = active === "ALL" ? {} : { status: active };
+  const total = await prisma.article.count({ where });
+  const { page, totalPages, skip, take } = paginate(total, getPageParam(sp.page), PAGE_SIZE);
+
   const articles = await prisma.article.findMany({
-    where: active === "ALL" ? {} : { status: active },
+    where,
     orderBy: { updatedAt: "desc" },
+    skip,
+    take,
     select: {
       id: true,
       title: true,
@@ -85,6 +96,13 @@ export default async function AdminArticlesPage({
           ))}
         </ul>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        basePath="/admin/articles"
+        params={{ status: active === "ALL" ? undefined : active }}
+      />
     </Section>
   );
 }

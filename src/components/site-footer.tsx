@@ -81,10 +81,7 @@ export function SiteFooter() {
                   {"children" in item &&
                     item.children.map((child) => (
                       <li key={child.href}>
-                        <Link
-                          href={child.href}
-                          className="text-sm text-white/70 hover:text-white"
-                        >
+                        <Link href={child.href} className="text-sm text-white/70 hover:text-white">
                           {child.label}
                         </Link>
                       </li>

@@ -91,7 +91,10 @@ export default async function ResourcesPage() {
                           <h3 className="mt-6 text-lg font-semibold text-brand">{r.label}</h3>
                           <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-accent">
                             Visit site
-                            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                            <span
+                              aria-hidden
+                              className="transition-transform group-hover:translate-x-0.5"
+                            >
                               →
                             </span>
                           </span>

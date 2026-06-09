@@ -106,11 +106,18 @@ model Enquiry {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
+  phone     String?
   service   String
   message   String   @db.Text
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Per-day page-view counter (raw views from all visitors). day = YYYY-MM-DD.
+model DailyView {
+  day   String @id
+  count Int    @default(0)
 }
 
 // Uploaded images stored in the DB (so they persist on serverless hosts like

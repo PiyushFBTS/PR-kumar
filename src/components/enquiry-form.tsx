@@ -7,6 +7,7 @@ export function EnquiryForm({ services }: { services: string[] }) {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     service: services[0] ?? "",
     message: "",
     website: "", // honeypot
@@ -91,6 +92,21 @@ export function EnquiryForm({ services }: { services: string[] }) {
           required
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="mt-1 w-full rounded border border-border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-brand">
+          Contact number
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          autoComplete="tel"
+          required
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
           className="mt-1 w-full rounded border border-border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
         />
       </div>

@@ -18,7 +18,14 @@ const emptyForm = { label: "", url: "", category: "", logo: "" };
 const inputClass =
   "mt-1 w-full rounded border border-border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent";
 
-export function ResourceManager({ resources }: { resources: ManagedResource[] }) {
+export function ResourceManager({
+  resources,
+  total,
+}: {
+  resources: ManagedResource[];
+  total?: number;
+}) {
+  const count = total ?? resources.length;
   const router = useRouter();
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -76,14 +83,11 @@ export function ResourceManager({ resources }: { resources: ManagedResource[] })
       category: form.category || null,
       logo: form.logo || null,
     };
-    const res = await fetch(
-      editId ? `/api/admin/resources/${editId}` : "/api/admin/resources",
-      {
-        method: editId ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    );
+    const res = await fetch(editId ? `/api/admin/resources/${editId}` : "/api/admin/resources", {
+      method: editId ? "PATCH" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     setBusy(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -107,7 +111,7 @@ export function ResourceManager({ resources }: { resources: ManagedResource[] })
     <>
       <div className="mt-6 flex items-center justify-between">
         <p className="text-sm text-muted">
-          {resources.length} resource{resources.length === 1 ? "" : "s"}
+          {count} resource{count === 1 ? "" : "s"}
         </p>
         <Button size="sm" onClick={openAdd}>
           + Add resource

@@ -71,7 +71,10 @@ export const partners: Partner[] = [
     phone: "+91 98716 69955",
     email: "rahul@prkumar.in",
     order: 3,
-    education: ["Chartered Accountant (FCA)", "Bachelor of Commerce (Honours), University of Delhi"],
+    education: [
+      "Chartered Accountant (FCA)",
+      "Bachelor of Commerce (Honours), University of Delhi",
+    ],
     experience: [
       "Rahul joined P. R. Kumar in 1995 and heads our assurance practice, assisting companies in the implementation of ERP systems in their organizations.",
       "He pioneered our ERP initiative and has successfully implemented these solutions in a reputed FMCG company and an auto and engineering sector company.",

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HideOnAuth } from "@/components/hide-on-auth";
+import { PageTracker } from "@/components/page-tracker";
 import { JsonLd } from "@/components/json-ld";
 import { site } from "@/lib/site";
 
@@ -81,6 +82,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <AuthProvider>
+          <PageTracker />
           <SiteHeader />
           <main id="main" className="flex-1">
             {children}

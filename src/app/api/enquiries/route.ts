@@ -22,10 +22,10 @@ export async function POST(req: Request) {
     return apiError("Invalid input", 400, { issues: parsed.error.flatten().fieldErrors });
   }
 
-  const { name, email, service, message } = parsed.data;
-  await prisma.enquiry.create({ data: { name, email, service, message } });
+  const { name, email, phone, service, message } = parsed.data;
+  await prisma.enquiry.create({ data: { name, email, phone, service, message } });
 
-  await notifyFirmOfEnquiry({ name, email, service, message });
+  await notifyFirmOfEnquiry({ name, email, phone, service, message });
   await ackEnquiry({ to: email, name });
 
   return json({ ok: true }, 201);

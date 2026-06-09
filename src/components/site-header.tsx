@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { Container } from "@/components/ui/container";
 import { useAuth } from "@/components/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserMenu } from "@/components/user-menu";
 
 type NavItem = (typeof site.nav)[number];
 
@@ -137,52 +138,6 @@ function MobileNavItem({
   );
 }
 
-// Desktop auth actions on the right of the nav.
-function HeaderAuth() {
-  const { user, loading, logout } = useAuth();
-  const router = useRouter();
-
-  if (loading) return <span className="hidden h-5 w-16 lg:block" aria-hidden />;
-
-  if (!user) {
-    return (
-      <Link
-        href="/login"
-        className="hidden rounded bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90 lg:inline-block"
-      >
-        Login
-      </Link>
-    );
-  }
-
-  return (
-    <div className="hidden items-center gap-4 text-sm lg:flex">
-      {user.role === "ADMIN" ? (
-        <Link href="/admin" className="text-white/75 hover:text-white">
-          Admin
-        </Link>
-      ) : null}
-      <Link
-        href="/account/articles"
-        className="text-white/75 hover:text-white"
-      >
-        My Articles
-      </Link>
-      <button
-        type="button"
-        onClick={async () => {
-          await logout();
-          router.push("/");
-          router.refresh();
-        }}
-        className="rounded border border-white/30 px-3 py-1.5 text-white hover:bg-white/10"
-      >
-        Sign out
-      </button>
-    </div>
-  );
-}
-
 export function SiteHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -217,9 +172,7 @@ export function SiteHeader() {
                       href={item.href}
                       className={cn(
                         "py-2 hover:text-white",
-                        isActive(pathname, item.href)
-                          ? "text-white"
-                          : "text-white/75",
+                        isActive(pathname, item.href) ? "text-white" : "text-white/75",
                       )}
                     >
                       {item.label}
@@ -230,7 +183,7 @@ export function SiteHeader() {
             </ul>
           </nav>
 
-          <HeaderAuth />
+          <UserMenu />
 
           <ThemeToggle />
 
@@ -276,13 +229,24 @@ export function SiteHeader() {
               <div className="mt-4 border-t border-border pt-4">
                 {user ? (
                   <div className="space-y-3">
+                    <div className="pb-1">
+                      <p className="font-medium text-brand">{user.name}</p>
+                      <p className="truncate text-xs text-muted">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/account/profile"
+                      onClick={() => setDrawerOpen(false)}
+                      className="block text-base text-foreground"
+                    >
+                      My Profile
+                    </Link>
                     {user.role === "ADMIN" ? (
                       <Link
                         href="/admin"
                         onClick={() => setDrawerOpen(false)}
                         className="block text-base text-foreground"
                       >
-                        Admin
+                        Admin Panel
                       </Link>
                     ) : null}
                     <Link
@@ -292,6 +256,13 @@ export function SiteHeader() {
                     >
                       My Articles
                     </Link>
+                    <Link
+                      href="/account/password"
+                      onClick={() => setDrawerOpen(false)}
+                      className="block text-base text-foreground"
+                    >
+                      Change Password
+                    </Link>
                     <button
                       type="button"
                       onClick={async () => {
@@ -300,9 +271,9 @@ export function SiteHeader() {
                         router.push("/");
                         router.refresh();
                       }}
-                      className="text-base text-brand"
+                      className="text-base font-medium text-red-600"
                     >
-                      Sign out
+                      Logout
                     </button>
                   </div>
                 ) : (

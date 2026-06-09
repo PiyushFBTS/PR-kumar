@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Section } from "@/components/ui/section";
+import { Pagination } from "@/components/ui/pagination";
+import { getPageParam, paginate } from "@/lib/pagination";
 
 export const metadata = { title: "Applications" } satisfies Metadata;
+
+const PAGE_SIZE = 10;
 
 interface Experience {
   company?: string;
@@ -10,71 +14,133 @@ interface Experience {
   role?: string;
 }
 
-export default async function AdminCareersPage() {
-  const applications = await prisma.jobApplication.findMany({ orderBy: { createdAt: "desc" } });
+const TYPE_STYLES: Record<string, string> = {
+  JOB: "bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300",
+  INTERNSHIP: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  ARTICLESHIP: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+};
+
+function fmtDate(d: Date): string {
+  return new Date(d).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+}
+
+export default async function AdminCareersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const total = await prisma.jobApplication.count();
+  const { page, totalPages, skip, take } = paginate(
+    total,
+    getPageParam((await searchParams).page),
+    PAGE_SIZE,
+  );
+
+  const applications = await prisma.jobApplication.findMany({
+    orderBy: { createdAt: "desc" },
+    skip,
+    take,
+  });
 
   return (
     <Section>
       <h1 className="text-2xl font-semibold text-brand">Career applications</h1>
-      <p className="mt-2 text-sm text-muted">Job, internship and articleship applications.</p>
+      <p className="mt-2 text-sm text-muted">
+        {total} job, internship and articleship application{total === 1 ? "" : "s"}.
+      </p>
 
       {applications.length === 0 ? (
-        <p className="mt-8 rounded border border-border bg-surface p-6 text-sm text-muted">
+        <p className="mt-6 rounded-lg border border-border bg-surface p-8 text-center text-sm text-muted">
           No applications yet.
         </p>
       ) : (
-        <ul className="mt-6 space-y-4">
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {applications.map((a) => {
             const exp = (a.experience as Experience | null) ?? null;
             return (
-              <li key={a.id} className="rounded-lg border border-border bg-background p-5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="font-medium text-brand">
-                      {a.name}{" "}
-                      <span className="ml-1 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
-                        {a.applyType}
-                      </span>
-                    </p>
-                    <p className="mt-1 text-xs text-muted">
-                      <a href={`mailto:${a.email}`} className="hover:text-brand">
-                        {a.email}
-                      </a>{" "}
-                      · {a.phone}
-                    </p>
+              <article
+                key={a.id}
+                className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-sm"
+              >
+                <header className="flex items-start justify-between gap-3 border-b border-border bg-surface px-5 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-brand">{a.name}</p>
+                    <p className="mt-0.5 text-xs text-muted">{fmtDate(a.createdAt)}</p>
                   </div>
-                  <span className="text-xs text-muted">{a.createdAt.toLocaleString()}</span>
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+                      TYPE_STYLES[a.applyType] ?? "bg-surface text-muted"
+                    }`}
+                  >
+                    {a.applyType}
+                  </span>
+                </header>
+
+                <div className="grid gap-3 px-5 py-4 sm:grid-cols-2">
+                  <Detail label="Email">
+                    <a href={`mailto:${a.email}`} className="text-brand hover:underline">
+                      {a.email}
+                    </a>
+                  </Detail>
+                  <Detail label="Contact number">
+                    <a
+                      href={`tel:${a.phone.replace(/\s+/g, "")}`}
+                      className="text-brand hover:underline"
+                    >
+                      {a.phone}
+                    </a>
+                  </Detail>
+                  <Detail label="Experience">
+                    {a.hasExperience && exp ? (
+                      <span className="text-foreground">
+                        {exp.role || "—"}
+                        {exp.company ? ` · ${exp.company}` : ""}
+                        {exp.years ? ` · ${exp.years} yrs` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-muted">No prior experience</span>
+                    )}
+                  </Detail>
+                  <Detail label="Resume">
+                    {a.resume ? (
+                      <a
+                        href={`/api/admin/careers/${a.id}/resume`}
+                        className="font-medium text-brand-accent hover:underline"
+                      >
+                        ↓ Download
+                      </a>
+                    ) : (
+                      <span className="text-muted">Not attached</span>
+                    )}
+                  </Detail>
                 </div>
 
-                {a.hasExperience && exp ? (
-                  <p className="mt-3 text-sm text-foreground">
-                    <span className="font-medium">Experience:</span> {exp.role || "—"}
-                    {exp.company ? ` at ${exp.company}` : ""}
-                    {exp.years ? ` (${exp.years} yrs)` : ""}
-                  </p>
-                ) : (
-                  <p className="mt-3 text-sm text-muted">No prior experience indicated.</p>
-                )}
-
                 {a.coverNote ? (
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-foreground">{a.coverNote}</p>
+                  <div className="border-t border-border px-5 py-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                      Cover note
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
+                      {a.coverNote}
+                    </p>
+                  </div>
                 ) : null}
-
-                {a.resume ? (
-                  <a
-                    href={`/api/admin/careers/${a.id}/resume`}
-                    className="mt-3 inline-block text-sm font-medium text-brand hover:underline"
-                  >
-                    ↓ Download resume
-                  </a>
-                ) : (
-                  <p className="mt-3 text-xs text-muted">No resume attached.</p>
-                )}
-              </li>
+              </article>
             );
           })}
-        </ul>
+        </div>
       )}
+
+      <Pagination page={page} totalPages={totalPages} basePath="/admin/careers" />
     </Section>
+  );
+}
+
+function Detail({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-0.5 text-sm">{children}</p>
+    </div>
   );
 }

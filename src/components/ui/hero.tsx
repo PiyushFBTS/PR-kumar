@@ -19,9 +19,7 @@ export function Hero({
   image?: string;
 }) {
   return (
-    <section
-      className={cn("relative isolate overflow-hidden text-white", !image && "bg-ink")}
-    >
+    <section className={cn("relative isolate overflow-hidden text-white", !image && "bg-ink")}>
       {image ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
