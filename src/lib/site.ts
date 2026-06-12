@@ -30,6 +30,7 @@ export const site = {
       ],
     },
     { label: "Leadership", href: "/leadership" },
+    { label: "Experience", href: "/experience" },
     {
       label: "Thought Leadership",
       href: "/thought-leadership",
