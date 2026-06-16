@@ -71,7 +71,7 @@ export default async function PracticeAreaPage({ params }: { params: Promise<Par
             <ul className="mt-1 space-y-1">
               {area.leads.map((n) => (
                 <li key={n} className="text-lg font-semibold text-brand">
-                  CA {n}
+                  Mr. {n}
                 </li>
               ))}
             </ul>

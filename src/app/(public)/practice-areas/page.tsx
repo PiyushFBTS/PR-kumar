@@ -25,7 +25,7 @@ export default function PracticeAreasPage() {
             <Card key={area.slug} href={`/practice-areas/${area.slug}`} title={area.name}>
               <p>{area.summary}</p>
               <p className="mt-3 text-xs uppercase tracking-wide text-brand-accent">
-                Led by: {area.leads.map((n) => `CA ${n}`).join(", ")}
+                Led by: {area.leads.map((n) => `Mr. ${n}`).join(", ")}
               </p>
             </Card>
           ))}

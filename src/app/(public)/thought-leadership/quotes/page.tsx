@@ -48,7 +48,7 @@ export default function QuotesPage() {
               </span>
             </blockquote>
             <figcaption className="mt-6 text-sm font-semibold text-white/80">
-              — CA {mentor.partner}
+              — Mr. {mentor.partner}
             </figcaption>
           </figure>
         ) : null}
@@ -70,7 +70,7 @@ export default function QuotesPage() {
                 </span>
                 <blockquote className="mt-2 flex-1 text-foreground">{q.quote}</blockquote>
                 <figcaption className="mt-4">
-                  <p className="font-semibold text-brand">CA {q.partner}</p>
+                  <p className="font-semibold text-brand">Mr. {q.partner}</p>
                   <p className="text-xs text-muted">{q.role}</p>
                 </figcaption>
               </figure>

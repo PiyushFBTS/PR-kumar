@@ -18,7 +18,7 @@ export interface Partner {
 export interface PracticeArea {
   slug: string;
   name: string;
-  leads: string[]; // partner names (rendered with a "CA" prefix)
+  leads: string[]; // partner names (rendered with a "Mr." prefix)
   summary: string;
   services: string[];
   order: number;
@@ -42,30 +42,9 @@ export const partners: Partner[] = [
     ],
   },
   {
-    slug: "ankit-agarwal",
-    name: "Ankit Agarwal",
-    role: "Managing Partner",
-    credentials: "M.Fin (George Washington University) · FCA · B.Com (Hons), University of Delhi",
-    bio: "Managing Partner with over 20 years in taxation and business advisory. Develops the firm's business advisory and income-tax practice; previously with Baker & McKenzie Consulting LLC, USA.",
-    phone: "+91 98711 77600",
-    email: "ankit@prkumar.in",
-    order: 2,
-    education: [
-      "Masters in Finance, George Washington University, USA",
-      "Chartered Accountant (FCA)",
-      "Bachelor of Commerce (Honours), University of Delhi",
-    ],
-    experience: [
-      "Ankit has assumed the responsibility of developing business advisory along with Income Tax Advisory services.",
-      "He brings with him over 20 years' experience in Taxation, Assessment and Investigation as well as business advisory.",
-      "Prior to joining P. R. Kumar, he worked with Baker & McKenzie Consulting LLC, USA and has undertaken various business advisory and international taxation projects.",
-      "During his Masters, he specialised in forex management and hedging, derivative structuring & modelling, corporate finance and transaction services.",
-    ],
-  },
-  {
     slug: "rahul-kathuria",
     name: "Rahul Kathuria",
-    role: "Assurance and IT Consulting",
+    role: "Assurance, Advisory and IT Consulting",
     credentials: "FCA · B.Com (Honours), University of Delhi",
     bio: "Heads the firm's assurance practice and pioneered its ERP/IT consulting initiative. Deep audit expertise across FMCG, technology, real estate and infrastructure.",
     phone: "+91 98716 69955",
@@ -82,17 +61,38 @@ export const partners: Partner[] = [
     ],
   },
   {
+    slug: "ankit-agarwal",
+    name: "Ankit Agarwal",
+    role: "Managing Partner cum Tax & Business Advisory",
+    credentials: "M.Fin (George Washington University) · FCA · B.Com (Hons), University of Delhi",
+    bio: "Managing Partner with  20+ years in taxation and business advisory. Develops the firm's business advisory and income-tax practice; previously with Baker & McKenzie Consulting LLC, USA.",
+    phone: "+91 98711 77600",
+    email: "ankit@prkumar.in",
+    order: 2,
+    education: [
+      "Masters in Finance, George Washington University, USA",
+      "Chartered Accountant (FCA)",
+      "Bachelor of Commerce (Honours), University of Delhi",
+    ],
+    experience: [
+      "Ankit has assumed the responsibility of developing business advisory along with Income Tax Advisory services.",
+      "He brings with him 20+ years' experience in Taxation, Assessment and Investigation as well as business advisory.",
+      "Prior to joining P. R. Kumar, he worked with Baker & McKenzie Consulting LLC, USA and has undertaken various business advisory and international taxation projects.",
+      "During his Masters, he specialised in forex management and hedging, derivative structuring & modelling, corporate finance and transaction services.",
+    ],
+  },
+  {
     slug: "kundan-kumar-jha",
     name: "Kundan Kumar Jha",
-    role: "Assurance, Due Diligence & GST",
+    role: "Business Advisory, Due Diligence & GST",
     credentials: "FCA · B.Com, University of Delhi",
-    bio: "Brings 15 years of assurance experience; ex-PricewaterhouseCoopers. Works across corporate taxation, financial due diligence and ESG/sustainability reporting.",
+    bio: "Brings 20+ years of assurance experience; ex-PricewaterhouseCoopers. Works across corporate taxation, financial due diligence and ESG/sustainability reporting.",
     phone: "+91 11 4711 8888",
     email: "kundan.jha@prkumar.in",
     order: 4,
     education: ["Chartered Accountant (FCA)", "Bachelor of Commerce, University of Delhi"],
     experience: [
-      "Kundan brings 15 years of divergent experience in assurance. He joined P. R. Kumar & Co. in 2010 and has been involved in assurance and corporate taxation.",
+      "Kundan brings 20+ years of divergent experience in assurance. He joined P. R. Kumar & Co. in 2010 and has been involved in assurance and corporate taxation.",
       "Prior to joining P. R. Kumar & Co., Kundan was working with PricewaterhouseCoopers, where he worked in the assurance department and was involved with finalisation of annual financials and limited reviews of leading corporate houses.",
       "Kundan has also worked on corporate taxation, financial due diligence, internal control mechanisms and project capitalisation.",
       "Kundan has taken up Environment, Social and Governance (ESG) reporting under climate change and sustainability reporting, which will apply to organisations at all levels very shortly.",
@@ -135,24 +135,25 @@ export const practiceAreas: PracticeArea[] = [
   {
     slug: "assurance-advisory",
     name: "Assurance & Advisory",
-    leads: ["Rahul Kathuria", "Deepak Srivastava"],
+    leads: ["Rahul Kathuria", "Deepak Srivastava", "Prabhash Kumar Jha"],
     summary:
       "Single-source financial, process and management assurance — from statutory audit through specialised reviews and ESG reporting.",
     services: [
       "Statutory Audit",
       "Tax Audit",
       "Transfer Pricing Audit",
-      "GST Audit",
+      "CAG Audit",
+      "Bank Audit",
       "Limited Review",
       "Special Purpose Financial Reporting",
-      "ESG Reporting — CA Kundan Kumar Jha",
+      "ESG Audit",
     ],
     order: 1,
   },
   {
     slug: "tax-advisory",
     name: "Tax Advisory",
-    leads: ["P. K. Agarwal", "Ankit Agarwal"],
+    leads: ["Ankit Agarwal", "Kundan Kumar Jha"],
     summary:
       "Direct and indirect tax advisory, planning, compliance and litigation — including representation before the tax authorities.",
     services: [
@@ -170,7 +171,7 @@ export const practiceAreas: PracticeArea[] = [
   {
     slug: "business-advisory",
     name: "Business Advisory",
-    leads: ["Rahul Kathuria", "Kundan Kumar Jha"],
+    leads: ["Rahul Kathuria", "Ankit Agarwal", "Kundan Kumar Jha"],
     summary:
       "Management consulting, due diligence and strategy that turn financial insight into business decisions.",
     services: [
@@ -186,7 +187,7 @@ export const practiceAreas: PracticeArea[] = [
   {
     slug: "management-advisory",
     name: "Management Advisory",
-    leads: ["Rahul Kathuria"],
+    leads: ["Rahul Kathuria", "Kundan Kumar Jha"],
     summary:
       "ERP consulting and process optimisation — evaluating, implementing and standardising the systems that run the business.",
     services: [
@@ -280,6 +281,7 @@ export const sectors = [
   "Retail",
   "Dairy",
   "QSR",
+  "Garment",
   "Real Estate",
   "Infrastructure",
   "Banking & Financial Services",

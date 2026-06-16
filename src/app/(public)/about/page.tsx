@@ -59,7 +59,7 @@ export default function AboutPage() {
             <h3 className="text-lg font-semibold text-brand">The team</h3>
             <p className="mt-2 text-muted">
               A cross-functional team of {site.stats.staff} professionals — chartered accountants,
-              auditors, investment bankers, economists and business analysts — led by{" "}
+              auditors including articles , investment bankers, economists and business analysts — led by{" "}
               {site.stats.partners} partners across {site.stats.practiceAreas} practice areas.
             </p>
           </div>

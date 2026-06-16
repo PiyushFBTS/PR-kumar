@@ -20,9 +20,9 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-// All partners are chartered accountants — prefix the display name with "CA".
+// Prefix the display name with a courtesy title.
 function caName(name: string): string {
-  return `CA ${name}`;
+  return `Mr. ${name}`;
 }
 
 function Avatar({ name, large = false }: { name: string; large?: boolean }) {

@@ -3,7 +3,7 @@ export const site = {
   name: "P. R. Kumar & Co.",
   tagline: "Chartered Accountants · Advisory | Assurance | Tax",
   established: 1981,
-  stats: { staff: "45+", partners: 6, practiceAreas: 4 },
+  stats: { staff: "30+", partners: 6, practiceAreas: 4 },
   contact: {
     address: "C-2/4 Safdarjung Development Area, Main Aurobindo Marg, New Delhi — 110016",
     phone: "+91 (11) 4711 8888",

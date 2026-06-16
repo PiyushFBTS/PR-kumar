@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* Firm name script font — uses the licensed "Shelley Allegro Script" when
+ * available, otherwise the loaded Pinyon Script fallback. */
+.brand-script {
+  font-family: "Shelley Allegro Script", var(--font-script), cursive;
+}
+
+/* Gentle floating motion for the sector bubbles. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubble-float {
+    animation: none !important;
+  }
+}
+
 /* Drive the `dark:` variant from the .dark class (toggled by the header switch)
  * instead of the OS preference. */
 @custom-variant dark (&:where(.dark, .dark *));

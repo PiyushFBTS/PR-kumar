@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/ui/hero";
 import { Section } from "@/components/ui/section";
+import { SectorBubbles } from "@/components/sector-bubbles";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ interface Credential {
   title: string;
   blurb: string;
   items: Item[];
+  bubbles?: string[]; // render as floating sector bubbles instead of a list
 }
 
 // Client identities are intentionally withheld (sector + scale only) in keeping
@@ -24,30 +26,9 @@ interface Credential {
 const CREDENTIALS: Credential[] = [
   {
     title: "Investigations, Search & Seizure",
-    blurb: "Extensive experience advising on and litigating search & seizure actions.",
-    items: [
-      { period: "1994", text: "Handled and litigated search & seizure cases for a leading FMCG group." },
-      {
-        period: "2004 & 2013",
-        text: "Handled and litigated search & seizure cases for a real-estate & infrastructure company.",
-      },
-      {
-        period: "2014",
-        text: "Advised a large steel manufacturer on a search action at their organisation.",
-      },
-      {
-        period: "2015",
-        text: "Handled and litigated search & seizure cases for a steel-industry group in Patna.",
-      },
-      {
-        period: "2015",
-        text: "Handled and litigated search & seizure cases for an FMCG group operating across India and Nepal.",
-      },
-      {
-        period: "2016 & 2017",
-        text: "Handled search & seizure cases for a group in the paper industry.",
-      },
-    ],
+    blurb: "Extensive experience handling search & seizure litigation for clients across sectors:",
+    items: [],
+    bubbles: ["FMCG", "Steel", "Real Estate", "Infrastructure"],
   },
   {
     title: "Forensic Audits & Investigations",
@@ -83,29 +64,43 @@ const CREDENTIALS: Credential[] = [
     ],
   },
   {
-    title: "ERP Implementation & Process Optimisation",
+    title: "ERP Implementation ",
     blurb:
-      "A pivotal role in ERP implementations and process optimisation across leading platforms — RAMCO, Navision, SAP S/4HANA and Microsoft Dynamics 365.",
+      "Partenrs in implmentting  OF ERPs while incorporating conteols as per business requiremnts and regulartory frameworks",
     items: [
-      { period: "2006–07", text: "RAMCO 3x implementation for a leading FMCG group — Delhi NCR." },
+      { period: "2006–07", text: "we have  partnered with various ERP  such as :" },
       {
         period: "2011–12",
-        text: "Navision LS Retail implementation for an FMCG group's retail operations.",
+        text: "RAMCO 3x , RACMO 5x",
+      },
+      {
+        period: "2011–12",
+        text: "Navision",
       },
       {
         period: "2016–17",
-        text: "Navision (all modules) implementation for a sweets & confectionery group — Delhi NCR.",
+        text: "LS Retail",
       },
-      { period: "2017–18", text: "RAMCO 5x implementation for a leading FMCG group — Delhi NCR." },
+      { period: "2017–18", text: "Business Central" },
       {
         period: "2019–20",
-        text: "SAP S/4HANA implementation for a leading FMCG group — Delhi NCR.",
+        text: "SAP HANA4",
       },
-      { period: "2023–24", text: "Navision implementation for a manufacturing group — Chennai." },
-      { period: "2023–24", text: "Process optimisation on SAP S/4HANA for a dairy group." },
       {
-        period: "2025–26",
-        text: "Microsoft Dynamics 365 Business Central (all modules) for a sweets & confectionery group — Delhi NCR.",
+        period: "2019–20",
+        text: "Sectors include FMCG,QSR,Manufacturing .",
+      },
+    ],
+  },
+    {
+    title: "Process Optimisation",
+    blurb:
+      "Our Team have successfully Partnered in Business prorcess optimisation activities while  :",
+    items: [
+      { period: "2006–07", text: " Drafting of standard operating procedures(SOPs) for various functions for various business houses" },
+      {
+        period: "2011–12",
+        text: "Validation of Bill of Material(BoM) in Control envirment and implements there of BoM in related ERP systems.",
       },
     ],
   },
@@ -193,14 +188,14 @@ export default function ExperiencePage() {
           {CREDENTIALS.map((cat, idx) => {
             const t = THEMES[idx % THEMES.length];
             return (
-              <div
+              <details
                 key={cat.title}
                 className={cn(
-                  "rounded-2xl border border-t-4 border-border bg-background p-6 shadow-sm sm:p-8",
+                  "group rounded-2xl border border-t-4 border-border bg-background shadow-sm",
                   t.top,
                 )}
               >
-                <div className="flex items-start gap-4">
+                <summary className="flex cursor-pointer list-none items-start gap-4 p-6 sm:p-8 [&::-webkit-details-marker]:hidden">
                   <span
                     className={cn(
                       "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
@@ -209,24 +204,42 @@ export default function ExperiencePage() {
                   >
                     <CatIcon index={idx} />
                   </span>
-                  <div>
+                  <div className="flex-1">
                     <h2 className="text-xl font-semibold text-brand">{cat.title}</h2>
                     <p className="mt-1 text-sm text-muted">{cat.blurb}</p>
                   </div>
-                </div>
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mt-1 h-5 w-5 shrink-0 text-muted transition-transform duration-300 group-open:rotate-180"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
 
-                <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {cat.items.map((it, i) => (
-                    <li
-                      key={i}
-                      className="flex gap-3 rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-sm"
-                    >
-                      <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", t.dot)} />
-                      <p className="text-sm leading-relaxed text-foreground">{it.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                {cat.bubbles ? (
+                  <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+                    <SectorBubbles sectors={cat.bubbles} />
+                  </div>
+                ) : (
+                  <ul className="grid gap-3 px-6 pb-6 sm:grid-cols-2 sm:px-8 sm:pb-8">
+                    {cat.items.map((it, i) => (
+                      <li
+                        key={i}
+                        className="flex gap-3 rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-sm"
+                      >
+                        <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", t.dot)} />
+                        <p className="text-sm leading-relaxed text-foreground">{it.text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </details>
             );
           })}
         </div>

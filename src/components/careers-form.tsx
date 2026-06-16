@@ -4,16 +4,24 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const APPLY_TYPES = [
-  { value: "JOB", label: "Job" },
-  { value: "INTERNSHIP", label: "Internship" },
+  { value: "QUALIFIED", label: "Qualified Professional" },
+  { value: "SEMI_QUALIFIED", label: "Semi-Qualified Professional" },
+  { value: "PAID_ASSOCIATE", label: "Paid Associate" },
   { value: "ARTICLESHIP", label: "Articleship" },
 ];
 
 export function CareersForm() {
   const formRef = useRef<HTMLFormElement>(null);
+  const resumeRef = useRef<HTMLInputElement>(null);
+  const [resumeName, setResumeName] = useState<string | null>(null);
   const [hasExperience, setHasExperience] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  function clearResume() {
+    if (resumeRef.current) resumeRef.current.value = "";
+    setResumeName(null);
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -144,12 +152,29 @@ export function CareersForm() {
           Resume (PDF, DOC or DOCX)
         </label>
         <input
+          ref={resumeRef}
           id="resume"
           name="resume"
           type="file"
           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="mt-1 block w-full text-sm text-muted"
+          onChange={(e) => setResumeName(e.target.files?.[0]?.name ?? null)}
+          className="mt-1 block w-full cursor-pointer text-sm text-muted file:mr-4 file:w-50 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-surface file:px-4 file:py-2 file:text-sm file:font-medium file:text-brand hover:file:border-brand-accent hover:file:bg-background"
         />
+
+        {resumeName ? (
+          <div className="mt-2 flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm">
+            <span className="min-w-0 flex-1 truncate text-brand">{resumeName}</span>
+            <button
+              type="button"
+              onClick={clearResume}
+              aria-label="Remove selected file"
+              title="Remove"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted hover:bg-background hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div>

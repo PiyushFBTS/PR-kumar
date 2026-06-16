@@ -43,7 +43,7 @@ export function SiteFooter() {
       <Container className="py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="text-base font-semibold text-white">{site.name}</p>
+            <p className="brand-script text-2xl text-white">{site.name}</p>
             <p className="mt-3 text-sm text-white/70">{site.contact.address}</p>
             <p className="mt-3 text-sm text-white/70">{site.contact.phone}</p>
             <a

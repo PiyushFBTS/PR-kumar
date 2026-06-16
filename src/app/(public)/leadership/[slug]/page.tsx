@@ -32,7 +32,7 @@ export default async function PartnerPage({ params }: { params: Promise<Params> 
         <p className="text-sm font-medium uppercase tracking-widest text-brand-accent">
           {partner.role}
         </p>
-        <h1 className="mt-3 text-3xl font-semibold text-brand sm:text-4xl">CA {partner.name}</h1>
+        <h1 className="mt-3 text-3xl font-semibold text-brand sm:text-4xl">Mr. {partner.name}</h1>
         <p className="mt-2 text-muted">{partner.credentials}</p>
 
         <p className="mt-8 text-lg leading-relaxed text-foreground">{partner.bio}</p>
