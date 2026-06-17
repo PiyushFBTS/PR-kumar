@@ -157,7 +157,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black text-white">
       <Container className="flex items-center justify-between py-4">
-        <Link href="/" className="brand-script text-2xl text-white sm:text-3xl">
+        <Link href="/" className="brand-script text-2xl text-white sm:text-2xl">
           {site.name}
         </Link>
 
