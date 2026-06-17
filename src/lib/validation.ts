@@ -72,6 +72,19 @@ export const resourceSchema = z.object({
   order: z.number().int().min(0).optional().default(0),
 });
 
+export const jobPostingSchema = z.object({
+  title: z.string().trim().min(2, "Title is required").max(160),
+  department: z.string().trim().max(120).nullable().optional(),
+  location: z.string().trim().max(120).nullable().optional(),
+  type: z
+    .enum(["QUALIFIED", "SEMI_QUALIFIED", "PAID_ASSOCIATE", "ARTICLESHIP"])
+    .default("QUALIFIED"),
+  remote: z.boolean().optional().default(false),
+  description: z.string().trim().min(5, "Description is too short").max(5000),
+  published: z.boolean().optional().default(true),
+  order: z.number().int().min(0).optional().default(0),
+});
+
 // --- Contact & Careers ---
 export const enquirySchema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(80),
@@ -88,11 +101,12 @@ export const experienceSchema = z.object({
 });
 
 export const jobApplicationSchema = z.object({
-  applyType: z.enum(["JOB", "INTERNSHIP", "ARTICLESHIP"]),
+  applyType: z.enum(["QUALIFIED", "SEMI_QUALIFIED", "PAID_ASSOCIATE", "ARTICLESHIP"]),
+  role: z.string().trim().max(160).optional().default(""),
   name: z.string().trim().min(2, "Name is too short").max(80),
   email: z.email("Enter a valid email").max(160),
   phone: z.string().trim().min(6, "Enter a valid phone").max(20),
   hasExperience: z.boolean().default(false),
   experience: experienceSchema.nullable().optional(),
-  coverNote: z.string().trim().max(5000).optional().default(""),
+  coverNote: z.string().trim().max(200, "Cover note must be 200 characters or fewer").optional().default(""),
 });

@@ -23,9 +23,12 @@ enum ArticleStatus {
 }
 
 enum ApplyType {
-  JOB
-  INTERNSHIP
+  JOB // legacy — kept for existing rows
+  INTERNSHIP // legacy — kept for existing rows
   ARTICLESHIP
+  QUALIFIED
+  SEMI_QUALIFIED
+  PAID_ASSOCIATE
 }
 
 model User {
@@ -129,9 +132,26 @@ model Media {
   createdAt DateTime @default(now())
 }
 
+// Open roles posted by the admin and shown on /careers/open-roles.
+model JobPosting {
+  id          Int       @id @default(autoincrement())
+  title       String
+  department  String?
+  location    String?
+  type        ApplyType @default(QUALIFIED)
+  remote      Boolean   @default(false)
+  description String    @db.Text
+  published   Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([published, order])
+}
+
 model JobApplication {
   id            Int       @id @default(autoincrement())
   applyType     ApplyType
+  role          String? // the open role applied for (if any)
   name          String
   email         String
   phone         String

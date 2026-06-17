@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/ui/hero";
 import { Section } from "@/components/ui/section";
-import { SectorBubbles } from "@/components/sector-bubbles";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
@@ -11,14 +10,15 @@ export const metadata: Metadata = {
 };
 
 interface Item {
-  period?: string;
   text: string;
 }
 interface Credential {
   title: string;
   blurb: string;
   items: Item[];
-  bubbles?: string[]; // render as floating sector bubbles instead of a list
+  intro?: string; // paragraph shown above the list
+  outro?: string; // paragraph shown below the list
+  simpleList?: boolean; // render as a plain bulleted list instead of the card grid
 }
 
 // Client identities are intentionally withheld (sector + scale only) in keeping
@@ -27,26 +27,24 @@ const CREDENTIALS: Credential[] = [
   {
     title: "Investigations, Search & Seizure",
     blurb: "Extensive experience handling search & seizure litigation for clients across sectors:",
-    items: [],
-    bubbles: ["FMCG", "Steel", "Real Estate", "Infrastructure"],
+    items: [{ text: "FMCG" }, { text: "Steel" }, { text: "Real Estate" }, { text: "Infrastructure" }],
+    simpleList: true,
   },
   {
     title: "Forensic Audits & Investigations",
     blurb: "Deep experience in forensic audits and fraud investigations.",
     items: [
       {
-        period: "2012",
         text: "Conducted a forensic audit for a national skill-development body at one of its partner entities in Chennai; our findings led to the partner's expulsion and recovery proceedings for the invested amount.",
       },
       {
-        period: "2015",
         text: "Investigated suspected fraud by employees and cashiers at a large FMCG company — identifying the perpetrators and strengthening internal systems.",
       },
       {
-        period: "2017",
         text: "Investigated the purchase and stores function of a garment exporter on suspicion of fraud and theft.",
       },
     ],
+    simpleList: true,
   },
   {
     title: "Financial & Direct Tax Due Diligence",
@@ -62,47 +60,36 @@ const CREDENTIALS: Credential[] = [
         text: "Financial and direct-tax due diligence enabling a large FMCG company to acquire a leading restaurant chain in Delhi NCR.",
       },
     ],
+    simpleList: true,
   },
   {
-    title: "ERP Implementation ",
+    title: "ERP Implementation",
     blurb:
-      "Partenrs in implmentting  OF ERPs while incorporating conteols as per business requiremnts and regulartory frameworks",
+      "Partners in implementing ERPs while incorporating controls as per business requirements and regulatory frameworks.",
+    intro: "We have partnered with various ERP systems, such as:",
     items: [
-      { period: "2006–07", text: "we have  partnered with various ERP  such as :" },
-      {
-        period: "2011–12",
-        text: "RAMCO 3x , RACMO 5x",
-      },
-      {
-        period: "2011–12",
-        text: "Navision",
-      },
-      {
-        period: "2016–17",
-        text: "LS Retail",
-      },
-      { period: "2017–18", text: "Business Central" },
-      {
-        period: "2019–20",
-        text: "SAP HANA4",
-      },
-      {
-        period: "2019–20",
-        text: "Sectors include FMCG,QSR,Manufacturing .",
-      },
+      { text: "RAMCO 3x, RAMCO 5x" },
+      { text: "Navision" },
+      { text: "LS Retail" },
+      { text: "Business Central" },
+      { text: "SAP HANA4" },
     ],
+    outro: "Sectors include FMCG, QSR and Manufacturing.",
+    simpleList: true,
   },
-    {
+  {
     title: "Process Optimisation",
     blurb:
-      "Our Team have successfully Partnered in Business prorcess optimisation activities while  :",
+      "Our team have successfully partnered in business process optimisation activities while:",
     items: [
-      { period: "2006–07", text: " Drafting of standard operating procedures(SOPs) for various functions for various business houses" },
       {
-        period: "2011–12",
-        text: "Validation of Bill of Material(BoM) in Control envirment and implements there of BoM in related ERP systems.",
+        text: "Drafting of standard operating procedures (SOPs) for various functions for various business houses.",
+      },
+      {
+        text: "Validation of Bill of Material (BoM) in a control environment and implementation thereof in related ERP systems.",
       },
     ],
+    simpleList: true,
   },
 ];
 
@@ -222,23 +209,42 @@ export default function ExperiencePage() {
                   </svg>
                 </summary>
 
-                {cat.bubbles ? (
-                  <div className="px-6 pb-6 sm:px-8 sm:pb-8">
-                    <SectorBubbles sectors={cat.bubbles} />
-                  </div>
-                ) : (
-                  <ul className="grid gap-3 px-6 pb-6 sm:grid-cols-2 sm:px-8 sm:pb-8">
-                    {cat.items.map((it, i) => (
-                      <li
-                        key={i}
-                        className="flex gap-3 rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-sm"
-                      >
-                        <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", t.dot)} />
-                        <p className="text-sm leading-relaxed text-foreground">{it.text}</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+                  {cat.intro ? (
+                    <p className="mb-3 text-sm leading-relaxed text-foreground sm:text-base">
+                      {cat.intro}
+                    </p>
+                  ) : null}
+
+                  {cat.simpleList ? (
+                    <ul className="space-y-3">
+                      {cat.items.map((it, i) => (
+                        <li key={i} className="flex items-start gap-3 text-foreground">
+                          <span className={cn("mt-2 h-2 w-2 shrink-0 rounded-full", t.dot)} />
+                          <span className="text-sm leading-relaxed sm:text-base">{it.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <ul className="grid gap-3 sm:grid-cols-2">
+                      {cat.items.map((it, i) => (
+                        <li
+                          key={i}
+                          className="flex gap-3 rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-sm"
+                        >
+                          <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", t.dot)} />
+                          <p className="text-sm leading-relaxed text-foreground">{it.text}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {cat.outro ? (
+                    <p className="mt-4 text-sm leading-relaxed text-foreground sm:text-base">
+                      {cat.outro}
+                    </p>
+                  ) : null}
+                </div>
               </details>
             );
           })}

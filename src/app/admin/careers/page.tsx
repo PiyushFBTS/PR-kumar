@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Section } from "@/components/ui/section";
 import { Pagination } from "@/components/ui/pagination";
+import { CoverNote } from "@/components/cover-note";
 import { getPageParam, paginate } from "@/lib/pagination";
 
 export const metadata = { title: "Applications" } satisfies Metadata;
@@ -14,9 +15,19 @@ interface Experience {
   role?: string;
 }
 
+const TYPE_LABEL: Record<string, string> = {
+  QUALIFIED: "Qualified",
+  SEMI_QUALIFIED: "Semi-Qualified",
+  PAID_ASSOCIATE: "Paid Associate",
+  ARTICLESHIP: "Articleship",
+  JOB: "Job",
+  INTERNSHIP: "Internship",
+};
+
 const TYPE_STYLES: Record<string, string> = {
-  JOB: "bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300",
-  INTERNSHIP: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  QUALIFIED: "bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300",
+  SEMI_QUALIFIED: "bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+  PAID_ASSOCIATE: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
   ARTICLESHIP: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
 };
 
@@ -54,93 +65,97 @@ export default async function AdminCareersPage({
           No applications yet.
         </p>
       ) : (
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
-          {applications.map((a) => {
-            const exp = (a.experience as Experience | null) ?? null;
-            return (
-              <article
-                key={a.id}
-                className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-sm"
-              >
-                <header className="flex items-start justify-between gap-3 border-b border-border bg-surface px-5 py-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-brand">{a.name}</p>
-                    <p className="mt-0.5 text-xs text-muted">{fmtDate(a.createdAt)}</p>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
-                      TYPE_STYLES[a.applyType] ?? "bg-surface text-muted"
-                    }`}
-                  >
-                    {a.applyType}
-                  </span>
-                </header>
-
-                <div className="grid gap-3 px-5 py-4 sm:grid-cols-2">
-                  <Detail label="Email">
-                    <a href={`mailto:${a.email}`} className="text-brand hover:underline">
-                      {a.email}
-                    </a>
-                  </Detail>
-                  <Detail label="Contact number">
-                    <a
-                      href={`tel:${a.phone.replace(/\s+/g, "")}`}
-                      className="text-brand hover:underline"
-                    >
-                      {a.phone}
-                    </a>
-                  </Detail>
-                  <Detail label="Experience">
-                    {a.hasExperience && exp ? (
-                      <span className="text-foreground">
-                        {exp.role || "—"}
-                        {exp.company ? ` · ${exp.company}` : ""}
-                        {exp.years ? ` · ${exp.years} yrs` : ""}
-                      </span>
-                    ) : (
-                      <span className="text-muted">No prior experience</span>
-                    )}
-                  </Detail>
-                  <Detail label="Resume">
-                    {a.resume ? (
+        <div className="mt-6 overflow-x-auto rounded-lg border border-border">
+          <table className="w-full min-w-240 text-left text-sm">
+            <thead className="bg-surface text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-4 py-3 font-medium">Applicant</th>
+                <th className="px-4 py-3 font-medium">Role</th>
+                <th className="px-4 py-3 font-medium">Type</th>
+                <th className="px-4 py-3 font-medium">Experience</th>
+                <th className="px-4 py-3 font-medium">Cover note</th>
+                <th className="px-4 py-3 font-medium">Resume</th>
+                <th className="px-4 py-3 font-medium">Applied</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {applications.map((a) => {
+                const exp = (a.experience as Experience | null) ?? null;
+                return (
+                  <tr key={a.id} className="align-top transition-colors hover:bg-surface">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-brand">{a.name}</p>
                       <a
-                        href={`/api/admin/careers/${a.id}/resume`}
-                        className="font-medium text-brand-accent hover:underline"
+                        href={`mailto:${a.email}`}
+                        className="block text-xs text-muted hover:text-brand"
                       >
-                        ↓ Download
+                        {a.email}
                       </a>
-                    ) : (
-                      <span className="text-muted">Not attached</span>
-                    )}
-                  </Detail>
-                </div>
-
-                {a.coverNote ? (
-                  <div className="border-t border-border px-5 py-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                      Cover note
-                    </p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
-                      {a.coverNote}
-                    </p>
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
+                      <a
+                        href={`tel:${a.phone.replace(/\s+/g, "")}`}
+                        className="block text-xs text-muted hover:text-brand"
+                      >
+                        {a.phone}
+                      </a>
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.role ? (
+                        <span className="text-foreground">{a.role}</span>
+                      ) : (
+                        <span className="text-muted">General</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                          TYPE_STYLES[a.applyType] ?? "bg-surface text-muted"
+                        }`}
+                      >
+                        {TYPE_LABEL[a.applyType] ?? a.applyType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.hasExperience && exp ? (
+                        <span className="text-foreground">
+                          {exp.role || "—"}
+                          {exp.company ? ` · ${exp.company}` : ""}
+                          {exp.years ? ` · ${exp.years} yrs` : ""}
+                        </span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="max-w-xs px-4 py-3">
+                      {a.coverNote ? (
+                        <CoverNote text={a.coverNote} limit={200} />
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {a.resume ? (
+                        <a
+                          href={`/api/admin/careers/${a.id}/resume`}
+                          className="font-medium text-brand-accent hover:underline"
+                        >
+                          ↓ Download
+                        </a>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-xs text-muted">
+                      {fmtDate(a.createdAt)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
       <Pagination page={page} totalPages={totalPages} basePath="/admin/careers" />
     </Section>
-  );
-}
-
-function Detail({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-0.5 text-sm">{children}</p>
-    </div>
   );
 }

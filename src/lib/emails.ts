@@ -96,6 +96,7 @@ export async function notifyFirmOfApplication(opts: {
   email: string;
   phone: string;
   applyType: string;
+  role?: string | null;
   hasResume: boolean;
   resume?: MailAttachment;
 }) {
@@ -104,6 +105,7 @@ export async function notifyFirmOfApplication(opts: {
     `New ${opts.applyType.toLowerCase()} application: ${opts.name}`,
     `<p>A new career application has been submitted.</p>
      <p><strong>Type:</strong> ${opts.applyType}<br/>
+        ${opts.role ? `<strong>Role applied for:</strong> ${opts.role}<br/>` : ""}
         <strong>Name:</strong> ${opts.name}<br/>
         <strong>Email:</strong> ${opts.email}<br/>
         <strong>Phone:</strong> ${opts.phone}<br/>

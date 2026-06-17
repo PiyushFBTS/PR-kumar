@@ -10,13 +10,47 @@ const APPLY_TYPES = [
   { value: "ARTICLESHIP", label: "Articleship" },
 ];
 
-export function CareersForm() {
+const COVER_LIMIT = 200;
+
+// Friendly labels for the API's field-error keys.
+const FIELD_LABELS: Record<string, string> = {
+  applyType: "Applying for",
+  role: "Position",
+  name: "Full name",
+  email: "Email",
+  phone: "Phone",
+  coverNote: "Cover note",
+  resume: "Resume",
+};
+
+function messageFromResponse(data: {
+  error?: string;
+  issues?: Record<string, string[]>;
+}): string {
+  const issues = data.issues;
+  if (issues && typeof issues === "object") {
+    const parts = Object.entries(issues)
+      .filter(([, msgs]) => Array.isArray(msgs) && msgs.length > 0)
+      .map(([field, msgs]) => `${FIELD_LABELS[field] ?? field}: ${msgs[0]}`);
+    if (parts.length > 0) return parts.join(" · ");
+  }
+  return data.error ?? "Could not submit. Please try again.";
+}
+
+export function CareersForm({
+  role,
+  roleOptions,
+}: {
+  role?: string;
+  roleOptions?: string[];
+} = {}) {
   const formRef = useRef<HTMLFormElement>(null);
   const resumeRef = useRef<HTMLInputElement>(null);
   const [resumeName, setResumeName] = useState<string | null>(null);
   const [hasExperience, setHasExperience] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [coverLen, setCoverLen] = useState(0);
 
   function clearResume() {
     if (resumeRef.current) resumeRef.current.value = "";
@@ -33,7 +67,7 @@ export function CareersForm() {
       const res = await fetch("/api/careers", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Could not submit. Please try again.");
+        setError(messageFromResponse(data));
         setStatus("idle");
         return;
       }
@@ -81,13 +115,44 @@ export function CareersForm() {
         <label htmlFor="applyType" className="block text-sm font-medium text-brand">
           Applying for
         </label>
-        <select id="applyType" name="applyType" className={inputClass} defaultValue="JOB">
+        <select id="applyType" name="applyType" className={inputClass} defaultValue="QUALIFIED">
           {APPLY_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
               {t.label}
             </option>
           ))}
         </select>
+      </div>
+
+      <div>
+        <label htmlFor="role" className="block text-sm font-medium text-brand">
+          Position you&apos;re applying for
+        </label>
+        {role ? (
+          <input
+            id="role"
+            name="role"
+            defaultValue={role}
+            readOnly
+            className={`${inputClass} bg-surface`}
+          />
+        ) : roleOptions && roleOptions.length > 0 ? (
+          <select id="role" name="role" className={inputClass} defaultValue="">
+            <option value="">General application (no specific role)</option>
+            {roleOptions.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id="role"
+            name="role"
+            placeholder="e.g. Audit Associate (optional)"
+            className={inputClass}
+          />
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -178,10 +243,22 @@ export function CareersForm() {
       </div>
 
       <div>
-        <label htmlFor="coverNote" className="block text-sm font-medium text-brand">
-          Cover note (optional)
-        </label>
-        <textarea id="coverNote" name="coverNote" rows={4} className={inputClass} />
+        <div className="flex items-center justify-between">
+          <label htmlFor="coverNote" className="block text-sm font-medium text-brand">
+            Cover note (optional)
+          </label>
+          <span className={`text-xs ${coverLen >= COVER_LIMIT ? "text-red-600" : "text-muted"}`}>
+            {coverLen}/{COVER_LIMIT}
+          </span>
+        </div>
+        <textarea
+          id="coverNote"
+          name="coverNote"
+          rows={4}
+          maxLength={COVER_LIMIT}
+          onChange={(e) => setCoverLen(e.target.value.length)}
+          className={inputClass}
+        />
       </div>
 
       <Button type="submit" disabled={status === "sending"}>

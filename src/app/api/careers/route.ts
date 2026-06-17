@@ -37,6 +37,7 @@ export async function POST(req: Request) {
   const hasExperience = str(form, "hasExperience") === "true";
   const candidate = {
     applyType: str(form, "applyType"),
+    role: str(form, "role"),
     name: str(form, "name"),
     email: str(form, "email"),
     phone: str(form, "phone"),
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
     return apiError("Invalid input", 400, { issues: parsed.error.flatten().fieldErrors });
   }
 
-  const { applyType, name, email, phone, experience, coverNote } = parsed.data;
+  const { applyType, role, name, email, phone, experience, coverNote } = parsed.data;
 
   // Optional resume — stored on disk (admin download) AND attached to the
   // notification email sent to the firm.
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
   await prisma.jobApplication.create({
     data: {
       applyType,
+      role: role || null,
       name,
       email,
       phone,
@@ -99,6 +101,7 @@ export async function POST(req: Request) {
     email,
     phone,
     applyType,
+    role: role || null,
     hasResume: resumePath !== null,
     resume: resumeAttachment,
   });

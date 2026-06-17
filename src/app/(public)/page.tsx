@@ -46,7 +46,7 @@ export default function HomePage() {
         actions={
           <>
             <Button href="/contact">Get in touch</Button>
-            <Button href="/practice-areas" variant="outline" className="border-white/30 text-white">
+            <Button href="/practice-areas" variant="outline-light">
               Our practice areas
             </Button>
           </>

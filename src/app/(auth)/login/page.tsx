@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/account/articles";
+  const next = params.get("next") || "/admin";
   const { setUser } = useAuth();
 
   const [email, setEmail] = useState("");

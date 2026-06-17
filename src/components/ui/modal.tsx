@@ -21,6 +21,13 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
+  // Hold the latest onClose so the setup effect can depend only on `open`
+  // (callers pass inline functions whose identity changes every render).
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -35,7 +42,7 @@ export function Modal({
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab" || !focusables || focusables.length === 0) return;
@@ -56,7 +63,7 @@ export function Modal({
       document.body.style.overflow = "";
       previouslyFocused.current?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

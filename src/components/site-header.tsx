@@ -50,8 +50,10 @@ function NavDropdown({ item, pathname }: { item: NavItem; pathname: string }) {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex items-center gap-1 py-2 hover:text-white",
-          isActive(pathname, item.href) ? "text-white" : "text-white/75",
+          "flex items-center gap-1 border-b-2 py-2 transition-colors hover:text-white",
+          isActive(pathname, item.href)
+            ? "border-primary text-white"
+            : "border-transparent text-white/75",
         )}
       >
         {item.label}
@@ -171,8 +173,10 @@ export function SiteHeader() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "py-2 hover:text-white",
-                        isActive(pathname, item.href) ? "text-white" : "text-white/75",
+                        "border-b-2 py-2 transition-colors hover:text-white",
+                        isActive(pathname, item.href)
+                          ? "border-primary text-white"
+                          : "border-transparent text-white/75",
                       )}
                     >
                       {item.label}

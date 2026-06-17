@@ -40,7 +40,14 @@ export const site = {
         { label: "Recent Blogs", href: "/thought-leadership/blogs" },
       ],
     },
-    { label: "Careers", href: "/careers" },
+    {
+      label: "Careers",
+      href: "/careers",
+      children: [
+        { label: "Why Join Us", href: "/careers" },
+        { label: "Open Roles", href: "/careers/open-roles" },
+      ],
+    },
     { label: "Contact", href: "/contact" },
   ],
 } as const;

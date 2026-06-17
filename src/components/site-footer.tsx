@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { Container } from "@/components/ui/container";
+import { VisitorCount } from "@/components/visitor-count";
 
 // Inline social icons (stroke/fill use currentColor).
 function SocialIcon({ name }: { name: string }) {
@@ -104,6 +105,17 @@ export function SiteFooter() {
                 ))}
             </ul>
           </div>
+        </div>
+
+        {/* Visitor counter */}
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-center sm:flex-row sm:text-left">
+          <p className="text-xs text-white/60">
+            © {new Date().getFullYear()} {site.name}. All rights reserved.
+          </p>
+          <p className="text-sm text-white/70">
+            <span className="uppercase tracking-wide text-white/50">Total visits:</span>{" "}
+            <VisitorCount />
+          </p>
         </div>
       </Container>
     </footer>
