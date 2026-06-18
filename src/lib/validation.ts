@@ -59,6 +59,7 @@ export const changePasswordSchema = z.object({
 
 export const quoteSchema = z.object({
   partner: z.string().trim().min(2, "Partner name is required").max(120),
+  role: z.string().trim().max(160).nullable().optional(),
   quote: z.string().trim().min(3, "Quote is too short").max(1000),
   order: z.number().int().min(0).optional().default(0),
   published: z.boolean().optional().default(true),
@@ -69,6 +70,7 @@ export const resourceSchema = z.object({
   url: z.url("Enter a valid URL").max(500),
   logo: z.string().trim().max(500).nullable().optional(),
   category: z.string().trim().max(80).nullable().optional(),
+  categoryOrder: z.number().int().min(0).optional().default(0),
   order: z.number().int().min(0).optional().default(0),
 });
 

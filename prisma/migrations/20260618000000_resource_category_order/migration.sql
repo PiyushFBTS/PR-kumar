@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Resource` ADD COLUMN `categoryOrder` INTEGER NOT NULL DEFAULT 0;

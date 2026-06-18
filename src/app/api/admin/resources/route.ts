@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { json, apiError } from "@/lib/api";
 import { resourceSchema } from "@/lib/validation";
+import { placeCategory, placeResourceInCategory } from "@/lib/resource-order";
 
 export async function GET() {
   const admin = await requireAdmin();
@@ -30,5 +31,9 @@ export async function POST(req: Request) {
       logo: parsed.data.logo ?? null,
     },
   });
+
+  const cat = parsed.data.category ?? "General";
+  await placeCategory(cat, parsed.data.categoryOrder || Number.MAX_SAFE_INTEGER);
+  await placeResourceInCategory(resource.id, cat, parsed.data.order || Number.MAX_SAFE_INTEGER);
   return json({ resource }, 201);
 }

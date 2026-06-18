@@ -11,19 +11,30 @@ export interface ManagedResource {
   url: string;
   logo: string | null;
   category: string | null;
+  categoryOrder: number;
   order: number;
 }
 
-const emptyForm = { label: "", url: "", category: "", logo: "" };
+export interface CategoryMeta {
+  name: string;
+  position: number;
+  count: number;
+}
+
+const emptyForm = { label: "", url: "", category: "", logo: "", categoryOrder: 1, order: 1 };
 const inputClass =
   "mt-1 w-full rounded border border-border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent";
 
 export function ResourceManager({
   resources,
   total,
+  categoryMeta = [],
+  nextCategoryPosition = 1,
 }: {
   resources: ManagedResource[];
   total?: number;
+  categoryMeta?: CategoryMeta[];
+  nextCategoryPosition?: number;
 }) {
   const count = total ?? resources.length;
   const router = useRouter();
@@ -37,17 +48,37 @@ export function ResourceManager({
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   function openAdd() {
-    setForm(emptyForm);
+    setForm({ ...emptyForm, categoryOrder: nextCategoryPosition, order: 1 });
     setEditId(null);
     setError(null);
     setFormOpen(true);
   }
 
   function openEdit(r: ManagedResource) {
-    setForm({ label: r.label, url: r.url, category: r.category ?? "", logo: r.logo ?? "" });
+    setForm({
+      label: r.label,
+      url: r.url,
+      category: r.category ?? "",
+      logo: r.logo ?? "",
+      categoryOrder: r.categoryOrder || 1,
+      order: r.order || 1,
+    });
     setEditId(r.id);
     setError(null);
     setFormOpen(true);
+  }
+
+  // When the category changes, suggest sensible positions: an existing category
+  // keeps its vertical slot and appends at the end horizontally; a new category
+  // goes last vertically.
+  function onCategoryChange(value: string) {
+    const match = categoryMeta.find((c) => c.name.toLowerCase() === value.trim().toLowerCase());
+    setForm((f) => ({
+      ...f,
+      category: value,
+      categoryOrder: match ? match.position : nextCategoryPosition,
+      order: editId ? f.order : match ? match.count + 1 : 1,
+    }));
   }
 
   async function onPickLogo(e: React.ChangeEvent<HTMLInputElement>) {
@@ -82,6 +113,8 @@ export function ResourceManager({
       url: form.url,
       category: form.category || null,
       logo: form.logo || null,
+      categoryOrder: form.categoryOrder,
+      order: form.order,
     };
     const res = await fetch(editId ? `/api/admin/resources/${editId}` : "/api/admin/resources", {
       method: editId ? "PATCH" : "POST",
@@ -140,13 +173,19 @@ export function ResourceManager({
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <p className="font-medium text-brand">{r.label}</p>
                   {r.category ? (
                     <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
                       {r.category}
                     </span>
                   ) : null}
+                  <span
+                    className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-brand-accent"
+                    title="Label position · position within label"
+                  >
+                    L{r.categoryOrder}·{r.order}
+                  </span>
                 </div>
                 <p className="mt-0.5 truncate text-xs text-muted">{r.url}</p>
               </div>
@@ -219,15 +258,48 @@ export function ResourceManager({
 
           <div>
             <label htmlFor="res-category" className="block text-sm font-medium text-brand">
-              Category <span className="text-muted">(optional)</span>
+              Category / label
             </label>
             <input
               id="res-category"
+              list="resource-categories"
               placeholder="e.g. Regulatory"
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              onChange={(e) => onCategoryChange(e.target.value)}
               className={inputClass}
             />
+            <datalist id="resource-categories">
+              {categoryMeta.map((c) => (
+                <option key={c.name} value={c.name} />
+              ))}
+            </datalist>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-brand">Label position</label>
+              <input
+                type="number"
+                min={1}
+                value={form.categoryOrder}
+                onChange={(e) =>
+                  setForm({ ...form, categoryOrder: Math.max(1, Number(e.target.value) || 1) })
+                }
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-muted">Vertical order of this category (1 = top).</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-brand">Position within label</label>
+              <input
+                type="number"
+                min={1}
+                value={form.order}
+                onChange={(e) => setForm({ ...form, order: Math.max(1, Number(e.target.value) || 1) })}
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-muted">Left-to-right order in the category.</p>
+            </div>
           </div>
 
           <div>

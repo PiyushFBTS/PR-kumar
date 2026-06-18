@@ -22,10 +22,25 @@ export default async function AdminResourcesPage({
   );
 
   const resources = await prisma.resource.findMany({
-    orderBy: [{ order: "asc" }, { id: "asc" }],
+    orderBy: [{ categoryOrder: "asc" }, { order: "asc" }, { id: "asc" }],
     skip,
     take,
   });
+
+  // Category metadata for the form (positions + counts), across ALL resources.
+  const all = await prisma.resource.findMany({
+    select: { category: true, categoryOrder: true },
+    orderBy: [{ categoryOrder: "asc" }, { id: "asc" }],
+  });
+  const catMap = new Map<string, { position: number; count: number }>();
+  for (const r of all) {
+    const name = r.category?.trim() || "General";
+    const existing = catMap.get(name);
+    if (existing) existing.count += 1;
+    else catMap.set(name, { position: r.categoryOrder || 1, count: 1 });
+  }
+  const categoryMeta = [...catMap.entries()].map(([name, v]) => ({ name, ...v }));
+  const nextCategoryPosition = categoryMeta.length + 1;
 
   return (
     <Section>
@@ -33,7 +48,12 @@ export default async function AdminResourcesPage({
       <p className="mt-2 text-sm text-muted">
         Manage the regulatory links shown on the public Resources page.
       </p>
-      <ResourceManager resources={resources} total={total} />
+      <ResourceManager
+        resources={resources}
+        total={total}
+        categoryMeta={categoryMeta}
+        nextCategoryPosition={nextCategoryPosition}
+      />
       <Pagination page={page} totalPages={totalPages} basePath="/admin/resources" />
     </Section>
   );

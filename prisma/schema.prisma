@@ -66,7 +66,8 @@ model Article {
 
 model PartnerQuote {
   id        Int      @id @default(autoincrement())
-  partner   String
+  partner   String   @unique // one quote per person
+  role      String?
   quote     String   @db.Text
   order     Int      @default(0)
   published Boolean  @default(true)
@@ -74,13 +75,14 @@ model PartnerQuote {
 }
 
 model Resource {
-  id        Int      @id @default(autoincrement())
-  label     String // e.g. "MCA"
-  url       String   @db.Text
-  logo      String? // uploaded logo path (e.g. /uploads/xxx.png)
-  category  String? // Regulatory, Tax, etc.
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  label         String // e.g. "MCA"
+  url           String   @db.Text
+  logo          String? // uploaded logo path (e.g. /uploads/xxx.png)
+  category      String? // Regulatory, Tax, etc.
+  categoryOrder Int      @default(0) // vertical position of the category group
+  order         Int      @default(0) // horizontal position within the category
+  createdAt     DateTime @default(now())
 }
 
 model PracticeArea {

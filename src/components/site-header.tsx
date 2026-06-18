@@ -102,7 +102,7 @@ function MobileNavItem({
         onClick={onNavigate}
         className={cn(
           "block py-3 text-base",
-          isActive(pathname, item.href) ? "font-medium text-brand" : "text-foreground",
+          isActive(pathname, item.href) ? "font-medium text-white" : "text-white/75",
         )}
       >
         {item.label}
@@ -111,12 +111,12 @@ function MobileNavItem({
   }
 
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-white/10">
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between py-3 text-base text-foreground"
+        className="flex w-full items-center justify-between py-3 text-base text-white/75"
       >
         {item.label}
         <span aria-hidden>{open ? "−" : "+"}</span>
@@ -128,7 +128,7 @@ function MobileNavItem({
               <Link
                 href={child.href}
                 onClick={onNavigate}
-                className="block py-2 text-sm text-muted"
+                className="block py-2 text-sm text-white/60 hover:text-white"
               >
                 {child.label}
               </Link>
@@ -157,7 +157,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-black text-white">
       <Container className="flex items-center justify-between py-4">
-        <Link href="/" className="brand-script text-2xl text-white sm:text-2xl">
+        <Link href="/" className="brand-script text-[22px] text-white">
           {site.name}
         </Link>
 
@@ -218,7 +218,7 @@ export function SiteHeader() {
           <nav
             id="mobile-drawer"
             aria-label="Mobile"
-            className="relative z-40 border-t border-border bg-background"
+            className="relative z-40 border-t border-white/10 bg-black text-white"
           >
             <Container className="py-2">
               {site.nav.map((item) => (
@@ -230,17 +230,17 @@ export function SiteHeader() {
                 />
               ))}
 
-              <div className="mt-4 border-t border-border pt-4">
+              <div className="mt-4 border-t border-white/10 pt-4">
                 {user ? (
                   <div className="space-y-3">
                     <div className="pb-1">
-                      <p className="font-medium text-brand">{user.name}</p>
-                      <p className="truncate text-xs text-muted">{user.email}</p>
+                      <p className="font-medium text-white">{user.name}</p>
+                      <p className="truncate text-xs text-white/60">{user.email}</p>
                     </div>
                     <Link
                       href="/account/profile"
                       onClick={() => setDrawerOpen(false)}
-                      className="block text-base text-foreground"
+                      className="block text-base text-white/75 hover:text-white"
                     >
                       My Profile
                     </Link>
@@ -248,7 +248,7 @@ export function SiteHeader() {
                       <Link
                         href="/admin"
                         onClick={() => setDrawerOpen(false)}
-                        className="block text-base text-foreground"
+                        className="block text-base text-white/75 hover:text-white"
                       >
                         Admin Panel
                       </Link>
@@ -256,14 +256,14 @@ export function SiteHeader() {
                     <Link
                       href="/account/articles"
                       onClick={() => setDrawerOpen(false)}
-                      className="block text-base text-foreground"
+                      className="block text-base text-white/75 hover:text-white"
                     >
                       My Articles
                     </Link>
                     <Link
                       href="/account/password"
                       onClick={() => setDrawerOpen(false)}
-                      className="block text-base text-foreground"
+                      className="block text-base text-white/75 hover:text-white"
                     >
                       Change Password
                     </Link>
@@ -275,7 +275,7 @@ export function SiteHeader() {
                         router.push("/");
                         router.refresh();
                       }}
-                      className="text-base font-medium text-red-600"
+                      className="text-base font-medium text-red-400"
                     >
                       Logout
                     </button>
@@ -284,7 +284,7 @@ export function SiteHeader() {
                   <Link
                     href="/login"
                     onClick={() => setDrawerOpen(false)}
-                    className="block rounded bg-ink px-4 py-2 text-center text-sm font-medium text-white"
+                    className="block rounded bg-white px-4 py-2 text-center text-sm font-medium text-black hover:bg-white/90"
                   >
                     Login
                   </Link>

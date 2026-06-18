@@ -27,7 +27,7 @@ function logoFor(label: string): string | null {
 
 export default async function ResourcesPage() {
   const resources = await prisma.resource.findMany({
-    orderBy: [{ order: "asc" }, { id: "asc" }],
+    orderBy: [{ categoryOrder: "asc" }, { order: "asc" }, { id: "asc" }],
     select: { id: true, label: true, url: true, logo: true, category: true },
   });
 

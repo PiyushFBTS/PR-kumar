@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { json, apiError } from "@/lib/api";
 import { quoteSchema } from "@/lib/validation";
+import { placeQuoteAt } from "@/lib/quotes";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -21,7 +22,20 @@ export async function PATCH(req: Request, { params }: Params) {
   const existing = await prisma.partnerQuote.findUnique({ where: { id }, select: { id: true } });
   if (!existing) return apiError("Not found", 404);
 
-  const quote = await prisma.partnerQuote.update({ where: { id }, data: parsed.data });
+  let quote;
+  try {
+    quote = await prisma.partnerQuote.update({ where: { id }, data: parsed.data });
+  } catch (e) {
+    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2002") {
+      return apiError("Another quote already uses this partner name.", 409);
+    }
+    throw e;
+  }
+
+  // If a position was provided (edit form), re-place and renumber.
+  if (typeof parsed.data.order === "number") {
+    await placeQuoteAt(id, parsed.data.order);
+  }
   return json({ quote });
 }
 

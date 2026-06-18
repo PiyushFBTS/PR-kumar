@@ -27,13 +27,17 @@ export default async function AdminQuotesPage({
     take,
   });
 
+  // Next free position for a new quote (defaults to last).
+  const maxOrder = await prisma.partnerQuote.aggregate({ _max: { order: true } });
+  const nextPosition = (maxOrder._max.order ?? 0) + 1;
+
   return (
     <Section>
       <h1 className="text-2xl font-semibold text-brand">Partner quotes</h1>
       <p className="mt-2 text-sm text-muted">
         Manage the quotes shown on the public Thought Leadership page.
       </p>
-      <QuoteManager quotes={quotes} />
+      <QuoteManager quotes={quotes} nextPosition={nextPosition} />
       <Pagination page={page} totalPages={totalPages} basePath="/admin/quotes" />
     </Section>
   );
