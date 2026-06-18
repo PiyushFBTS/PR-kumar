@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Section } from "@/components/ui/section";
 import { Pagination } from "@/components/ui/pagination";
-import { CoverNote } from "@/components/cover-note";
+import { RowDeleteButton } from "@/components/row-delete-button";
+import { ClickableRow } from "@/components/clickable-row";
 import { getPageParam, paginate } from "@/lib/pagination";
 
 export const metadata = { title: "Applications" } satisfies Metadata;
@@ -66,37 +68,39 @@ export default async function AdminCareersPage({
         </p>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-240 text-left text-sm">
+          <table className="w-full min-w-180 text-left text-sm">
             <thead className="bg-surface text-xs uppercase tracking-wide text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Applicant</th>
                 <th className="px-4 py-3 font-medium">Role</th>
-                <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Experience</th>
-                <th className="px-4 py-3 font-medium">Cover note</th>
-                <th className="px-4 py-3 font-medium">Resume</th>
                 <th className="px-4 py-3 font-medium">Applied</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {applications.map((a) => {
                 const exp = (a.experience as Experience | null) ?? null;
                 return (
-                  <tr key={a.id} className="align-top transition-colors hover:bg-surface">
+                  <ClickableRow
+                    key={a.id}
+                    href={`/admin/careers/${a.id}`}
+                    className="align-top transition-colors hover:bg-surface"
+                  >
                     <td className="px-4 py-3">
-                      <p className="font-medium text-brand">{a.name}</p>
-                      <a
-                        href={`mailto:${a.email}`}
-                        className="block text-xs text-muted hover:text-brand"
+                      <Link
+                        href={`/admin/careers/${a.id}`}
+                        className="font-medium text-brand hover:underline"
                       >
-                        {a.email}
-                      </a>
-                      <a
-                        href={`tel:${a.phone.replace(/\s+/g, "")}`}
-                        className="block text-xs text-muted hover:text-brand"
+                        {a.name}
+                      </Link>
+                      <span
+                        className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                          TYPE_STYLES[a.applyType] ?? "bg-surface text-muted"
+                        }`}
                       >
-                        {a.phone}
-                      </a>
+                        {TYPE_LABEL[a.applyType] ?? a.applyType}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {a.role ? (
@@ -104,15 +108,6 @@ export default async function AdminCareersPage({
                       ) : (
                         <span className="text-muted">General</span>
                       )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                          TYPE_STYLES[a.applyType] ?? "bg-surface text-muted"
-                        }`}
-                      >
-                        {TYPE_LABEL[a.applyType] ?? a.applyType}
-                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {a.hasExperience && exp ? (
@@ -125,29 +120,16 @@ export default async function AdminCareersPage({
                         <span className="text-muted">—</span>
                       )}
                     </td>
-                    <td className="max-w-xs px-4 py-3">
-                      {a.coverNote ? (
-                        <CoverNote text={a.coverNote} limit={200} />
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      {a.resume ? (
-                        <a
-                          href={`/api/admin/careers/${a.id}/resume`}
-                          className="font-medium text-brand-accent hover:underline"
-                        >
-                          ↓ Download
-                        </a>
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
-                    </td>
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-muted">
                       {fmtDate(a.createdAt)}
                     </td>
-                  </tr>
+                    <td className="px-4 py-3">
+                      <RowDeleteButton
+                        endpoint={`/api/admin/careers/${a.id}`}
+                        confirmText={`Delete the application from ${a.name}? This cannot be undone.`}
+                      />
+                    </td>
+                  </ClickableRow>
                 );
               })}
             </tbody>
